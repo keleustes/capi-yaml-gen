@@ -67,6 +67,7 @@ func GetCoreMachine(name, namespace, clusterName, version string, bootstrapConfi
 		clusterv1.ClusterLabelName: clusterName,
 	}
 	coreMachine.SetLabels(labels)
+	coreMachine.Spec.ClusterName = clusterName
 	coreMachine.Spec.Bootstrap.ConfigRef = referenceToObjectRef(bootstrapConfig)
 	coreMachine.Spec.InfrastructureRef = *referenceToObjectRef(infraMachine)
 	coreMachine.Spec.Version = &version
@@ -93,6 +94,7 @@ func GetCoreMachineDeployment(clusterName, name, namespace, version string, repl
 	labels := map[string]string{
 		clusterv1.ClusterLabelName: clusterName,
 	}
+	dep.Spec.ClusterName = clusterName
 	dep.Spec.Selector.MatchLabels = labels
 	dep.Spec.Template.ObjectMeta.Labels = labels
 	dep.Spec.Template.Spec.Version = &version

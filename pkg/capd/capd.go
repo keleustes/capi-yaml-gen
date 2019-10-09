@@ -17,8 +17,8 @@ limitations under the License.
 package capd
 
 import (
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/constants"
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/generator"
+	"github.com/keleustes/capi-yaml-gen/pkg/constants"
+	"github.com/keleustes/capi-yaml-gen/pkg/generator"
 	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha2"
 	infrav1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha2"
 )

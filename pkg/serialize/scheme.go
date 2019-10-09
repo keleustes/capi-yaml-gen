@@ -9,27 +9,30 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer/versioning"
 	"k8s.io/client-go/kubernetes/scheme"
-	awsv1 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha2"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	kubeadmv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha2"
-	dockerv1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha2"
+	awsv3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
+	baremetalv3 "sigs.k8s.io/cluster-api-provider-baremetal/api/v1alpha3"
+	clusterv3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	kubeadmv2 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha2"
+	dockerv2 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1alpha2"
 )
 
 func Scheme() *runtime.Scheme {
 	myScheme := runtime.NewScheme()
-	if err := clusterv1.AddToScheme(myScheme); err != nil {
+	if err := clusterv3.AddToScheme(myScheme); err != nil {
 		panic(err)
 	}
-	if err := dockerv1.AddToScheme(myScheme); err != nil {
+	if err := dockerv2.AddToScheme(myScheme); err != nil {
 		panic(err)
 	}
-	if err := kubeadmv1.AddToScheme(myScheme); err != nil {
+	if err := kubeadmv2.AddToScheme(myScheme); err != nil {
 		panic(err)
 	}
-	if err := awsv1.AddToScheme(myScheme); err != nil {
+	if err := awsv3.AddToScheme(myScheme); err != nil {
 		panic(err)
 	}
-
+	if err := baremetalv3.AddToScheme(myScheme); err != nil {
+		panic(err)
+	}
 	return myScheme
 }
 

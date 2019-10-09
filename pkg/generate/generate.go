@@ -14,21 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cmd
+package generate
 
 import (
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/cabpk"
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/capa"
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/capd"
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/capi"
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/constants"
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/generator"
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/serialize"
+	"github.com/keleustes/capi-yaml-gen/pkg/cabpk"
+	"github.com/keleustes/capi-yaml-gen/pkg/capa"
+	"github.com/keleustes/capi-yaml-gen/pkg/capbm"
+	"github.com/keleustes/capi-yaml-gen/pkg/capd"
+	"github.com/keleustes/capi-yaml-gen/pkg/capi"
+	"github.com/keleustes/capi-yaml-gen/pkg/constants"
+	"github.com/keleustes/capi-yaml-gen/pkg/generator"
+	"github.com/keleustes/capi-yaml-gen/pkg/serialize"
 
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -44,12 +44,25 @@ type printMachineParams struct {
 	isControlPlane    bool
 }
 
+type GenerateOptions struct {
+	InfraProvider            string
+	ClusterName              string
+	ClusterNamespace         string
+	BsProvider               string
+	K8sVersion               string
+	MachineDeployment        bool
+	ControlplaneMachineCount int
+	WorkerMachineCount       int
+}
+
 func getInfraProvider(provider string) (generator.InfrastructureProvider, error) {
 	switch strings.ToLower(provider) {
 	case "docker":
 		return capd.Provider{}, nil
 	case "aws":
 		return capa.Provider{}, nil
+	case "baremetal":
+		return capbm.Provider{}, nil
 	default:
 		return nil, fmt.Errorf("Unsupported infrastructure provider %q", provider)
 	}
@@ -94,59 +107,40 @@ func configuredMachineDeployment(p printMachineParams) []runtime.Object {
 	return []runtime.Object{machineTemplate, configTemplate, md}
 }
 
-func runGenerateCommand(opts generateOptions, stdout io.Writer) error {
+func RunGenerateCommand(opts GenerateOptions, stdout io.Writer) error {
 	items := make([]runtime.Object, 0)
-	ip, err := getInfraProvider(opts.infraProvider)
+	ip, err := getInfraProvider(opts.InfraProvider)
 	if err != nil {
 		return err
 	}
-	bp, err := getBootstrapProvider(opts.bsProvider)
+	bp, err := getBootstrapProvider(opts.BsProvider)
 	if err != nil {
 		return err
 	}
 
-	// check for env var
-	if !opts.allowEmptyEnvVar {
-		ev := ip.GetEnvironmentVariables()
-		for envVar := range ev {
-			if os.Getenv(envVar) == "" {
-				continue
-			}
-			delete(ev, envVar)
-		}
-		if len(ev) > 0 {
-			fmt.Println("Consider setting these default values and rerunning.")
-			fmt.Println("If you do not want to interpolate the values, rerun with the --allow-empty-env-vars flag.")
-			fmt.Println()
-			for envVar, defaultValue := range ev {
-				fmt.Printf("export %s=%s\n", envVar, defaultValue)
-			}
-			return nil
-		}
-	}
-	infraCluster := ip.GetInfraCluster(opts.clusterName, opts.clusterNamespace)
+	infraCluster := ip.GetInfraCluster(opts.ClusterName, opts.ClusterNamespace)
 
-	coreCluster := capi.GetCoreCluster(opts.clusterName, opts.clusterNamespace, infraCluster)
+	coreCluster := capi.GetCoreCluster(opts.ClusterName, opts.ClusterNamespace, infraCluster)
 
 	pcmControlplane := printMachineParams{
-		count:             opts.controlplaneMachineCount,
+		count:             opts.ControlplaneMachineCount,
 		infraProvider:     ip,
 		bootstrapProvider: bp,
 		namePrefix:        "controlplane",
-		clusterName:       opts.clusterName,
-		clusterNamespace:  opts.clusterNamespace,
-		k8sVersion:        opts.k8sVersion,
+		clusterName:       opts.ClusterName,
+		clusterNamespace:  opts.ClusterNamespace,
+		k8sVersion:        opts.K8sVersion,
 		isControlPlane:    true,
 	}
 
 	pmcWorker := printMachineParams{
-		count:             opts.workerMachineCount,
+		count:             opts.WorkerMachineCount,
 		infraProvider:     ip,
 		bootstrapProvider: bp,
 		namePrefix:        "worker",
-		clusterName:       opts.clusterName,
-		clusterNamespace:  opts.clusterNamespace,
-		k8sVersion:        opts.k8sVersion,
+		clusterName:       opts.ClusterName,
+		clusterNamespace:  opts.ClusterNamespace,
+		k8sVersion:        opts.K8sVersion,
 		isControlPlane:    false,
 	}
 
@@ -158,7 +152,7 @@ func runGenerateCommand(opts generateOptions, stdout io.Writer) error {
 	if err != nil {
 		return err
 	}
-	if opts.machineDeployment {
+	if opts.MachineDeployment {
 		pmcWorker.namePrefix += "-md"
 		workers = configuredMachineDeployment(pmcWorker)
 	}
@@ -171,15 +165,7 @@ func runGenerateCommand(opts generateOptions, stdout io.Writer) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(stdout, os.Expand(string(b), envFn))
+		fmt.Fprintln(stdout, string(b))
 	}
 	return nil
-}
-
-func envFn(envvar string) string {
-	val := os.Getenv(envvar)
-	if val == "" {
-		return fmt.Sprintf("${%s}", envvar)
-	}
-	return val
 }

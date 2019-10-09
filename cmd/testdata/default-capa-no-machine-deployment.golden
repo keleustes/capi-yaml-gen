@@ -1,5 +1,5 @@
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
 kind: AWSCluster
 metadata:
   creationTimestamp: null
@@ -25,12 +25,12 @@ spec:
     services:
       cidrBlocks: []
   infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
     kind: AWSCluster
     name: my-cluster
     namespace: default
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
 kind: AWSMachine
 metadata:
   creationTimestamp: null
@@ -60,7 +60,7 @@ spec:
       namespace: default
   clusterName: my-cluster
   infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
     kind: AWSMachine
     name: controlplane-0
     namespace: default
@@ -101,7 +101,7 @@ spec:
         cloud-provider: aws
       name: '{{ ds.meta_data.hostname }}'
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
 kind: AWSMachine
 metadata:
   creationTimestamp: null
@@ -130,7 +130,7 @@ spec:
       namespace: default
   clusterName: my-cluster
   infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
     kind: AWSMachine
     name: worker-0
     namespace: default

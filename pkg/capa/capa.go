@@ -17,11 +17,11 @@ limitations under the License.
 package capa
 
 import (
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/constants"
-	"github.com/ashish-amarnath/capi-yaml-gen/cmd/generator"
+	"github.com/keleustes/capi-yaml-gen/pkg/constants"
+	"github.com/keleustes/capi-yaml-gen/pkg/generator"
+	infrav1 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
 	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha2"
 	bootstrapv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/types/v1beta1"
-	infrav1 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha2"
 )
 
 // Provider CAPA implementation of InfrastructureProvider

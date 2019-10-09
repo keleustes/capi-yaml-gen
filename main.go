@@ -16,7 +16,7 @@ limitations under the License.
 
 package main
 
-import "github.com/ashish-amarnath/capi-yaml-gen/cmd"
+import "github.com/keleustes/capi-yaml-gen/cmd"
 
 func main() {
 	cmd.Execute()

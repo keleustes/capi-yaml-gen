@@ -22,6 +22,9 @@ const (
 	AWSClusterKind = "AWSCluster"
 	AWSMachineKind = "AWSMachine"
 
+	BareMetalClusterKind = "BareMetalCluster"
+	BareMetalMachineKind = "BareMetalMachine"
+
 	KubeadmConfigKind = "KubeadmConfig"
 
 	YAMLSeperator = "---"

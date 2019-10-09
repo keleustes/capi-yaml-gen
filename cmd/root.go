@@ -23,6 +23,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/keleustes/capi-yaml-gen/pkg/generate"
 )
 
 const (
@@ -34,18 +35,6 @@ const (
 	defaultControlPlaneCount      = 1
 	defaultWorkerCount            = 1
 )
-
-type generateOptions struct {
-	infraProvider            string
-	clusterName              string
-	clusterNamespace         string
-	bsProvider               string
-	k8sVersion               string
-	machineDeployment        bool
-	controlplaneMachineCount int
-	workerMachineCount       int
-	allowEmptyEnvVar         bool
-}
 
 // RootCmd returns the root command for capi-yaml-gen tool
 func RootCmd() *cobra.Command {
@@ -66,28 +55,27 @@ func RootCmd() *cobra.Command {
 }
 
 func getGenerateCommand() *cobra.Command {
-	opts := generateOptions{}
+	opts := generate.GenerateOptions{}
 
 	cmd := &cobra.Command{
 		Use:   "generate",
 		Short: "generate yaml for CAPI and its providers",
 		Long:  "generate yaml for CAPI and its providers",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runGenerateCommand(opts, os.Stdout)
+			return generate.RunGenerateCommand(opts, os.Stdout)
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.clusterName, "cluster-name", "c", defaultClusterName, "Name for the cluster")
-	cmd.Flags().StringVarP(&opts.clusterNamespace, "namespace", "n", defaultNamespace, "Namespace where the cluster will be created")
-	cmd.Flags().StringVarP(&opts.infraProvider, "infrastructure-provider", "i", defaultInfrastructureProvider, "Infrastructure provider for the cluster")
-	cmd.Flags().StringVarP(&opts.bsProvider, "boostrap-provider", "b", defaultBootstrapProvider, "Bootstrap provider for the cluster")
-	cmd.Flags().StringVarP(&opts.k8sVersion, "k8s-version", "k", defaultVersion, "Version of kubernetes for the cluster")
-	cmd.Flags().BoolVarP(&opts.machineDeployment, "generate-machine-deployment", "d", true, "Generate a machine deployment instead of individual machines")
+	cmd.Flags().StringVarP(&opts.ClusterName, "cluster-name", "c", defaultClusterName, "Name for the cluster")
+	cmd.Flags().StringVarP(&opts.ClusterNamespace, "namespace", "n", defaultNamespace, "Namespace where the cluster will be created")
+	cmd.Flags().StringVarP(&opts.InfraProvider, "infrastructure-provider", "i", defaultInfrastructureProvider, "Infrastructure provider for the cluster")
+	cmd.Flags().StringVarP(&opts.BsProvider, "boostrap-provider", "b", defaultBootstrapProvider, "Bootstrap provider for the cluster")
+	cmd.Flags().StringVarP(&opts.K8sVersion, "k8s-version", "k", defaultVersion, "Version of kubernetes for the cluster")
+	cmd.Flags().BoolVarP(&opts.MachineDeployment, "generate-machine-deployment", "d", true, "Generate a machine deployment instead of individual machines")
 
-	cmd.Flags().IntVarP(&opts.controlplaneMachineCount, "control-plane-count", "m", defaultControlPlaneCount, "Number of control plane machines in the cluster")
-	cmd.Flags().IntVarP(&opts.workerMachineCount, "worker-count", "w", defaultWorkerCount, "Number of worker machines in the cluster")
+	cmd.Flags().IntVarP(&opts.ControlplaneMachineCount, "control-plane-count", "m", defaultControlPlaneCount, "Number of control plane machines in the cluster")
+	cmd.Flags().IntVarP(&opts.WorkerMachineCount, "worker-count", "w", defaultWorkerCount, "Number of worker machines in the cluster")
 
-	cmd.Flags().BoolVarP(&opts.allowEmptyEnvVar, "allow-empty-env-vars", "a", false, "Allow unset environment variables")
 	return cmd
 }
 

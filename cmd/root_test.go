@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/keleustes/capi-yaml-gen/pkg/generate"
 )
 
 var update = flag.Bool("update", false, "update golden files")
@@ -16,51 +17,48 @@ func TestGoldenFiles(t *testing.T) {
 	testcases := []struct {
 		name       string
 		goldenfile string
-		options    generateOptions
+		options    generate.GenerateOptions
 	}{
 		{
 			"./capi-yaml-gen generate --generate-machine-deployment=false",
 			"default-capd-no-machine-deployment",
-			generateOptions{
-				infraProvider:            defaultInfrastructureProvider,
-				clusterName:              defaultClusterName,
-				clusterNamespace:         defaultNamespace,
-				bsProvider:               defaultBootstrapProvider,
-				k8sVersion:               defaultVersion,
-				controlplaneMachineCount: defaultControlPlaneCount,
-				workerMachineCount:       defaultWorkerCount,
-				machineDeployment:        false,
-				allowEmptyEnvVar:         true,
+			generate.GenerateOptions{
+				InfraProvider:            defaultInfrastructureProvider,
+				ClusterName:              defaultClusterName,
+				ClusterNamespace:         defaultNamespace,
+				BsProvider:               defaultBootstrapProvider,
+				K8sVersion:               defaultVersion,
+				ControlplaneMachineCount: defaultControlPlaneCount,
+				WorkerMachineCount:       defaultWorkerCount,
+				MachineDeployment:        false,
 			},
 		},
 		{
 			"./capi-yaml-gen generate --infrastructure-provider aws",
 			"default-capa-no-machine-deployment",
-			generateOptions{
-				infraProvider:            "aws",
-				clusterName:              defaultClusterName,
-				clusterNamespace:         defaultNamespace,
-				bsProvider:               defaultBootstrapProvider,
-				k8sVersion:               defaultVersion,
-				controlplaneMachineCount: defaultControlPlaneCount,
-				workerMachineCount:       defaultWorkerCount,
-				machineDeployment:        false,
-				allowEmptyEnvVar:         true,
+			generate.GenerateOptions{
+				InfraProvider:            "aws",
+				ClusterName:              defaultClusterName,
+				ClusterNamespace:         defaultNamespace,
+				BsProvider:               defaultBootstrapProvider,
+				K8sVersion:               defaultVersion,
+				ControlplaneMachineCount: defaultControlPlaneCount,
+				WorkerMachineCount:       defaultWorkerCount,
+				MachineDeployment:        false,
 			},
 		},
 		{
 			"./capi-yaml-gen generate",
 			"default-capd",
-			generateOptions{
-				infraProvider:            defaultInfrastructureProvider,
-				clusterName:              defaultClusterName,
-				clusterNamespace:         defaultNamespace,
-				bsProvider:               defaultBootstrapProvider,
-				k8sVersion:               defaultVersion,
-				controlplaneMachineCount: defaultControlPlaneCount,
-				workerMachineCount:       defaultWorkerCount,
-				machineDeployment:        true,
-				allowEmptyEnvVar:         true,
+			generate.GenerateOptions{
+				InfraProvider:            defaultInfrastructureProvider,
+				ClusterName:              defaultClusterName,
+				ClusterNamespace:         defaultNamespace,
+				BsProvider:               defaultBootstrapProvider,
+				K8sVersion:               defaultVersion,
+				ControlplaneMachineCount: defaultControlPlaneCount,
+				WorkerMachineCount:       defaultWorkerCount,
+				MachineDeployment:        true,
 			},
 		},
 	}
@@ -68,7 +66,7 @@ func TestGoldenFiles(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			var stdout bytes.Buffer
-			if err := runGenerateCommand(tc.options, &stdout); err != nil {
+			if err := generate.RunGenerateCommand(tc.options, &stdout); err != nil {
 				t.Fatal(err)
 			}
 
